@@ -21,18 +21,21 @@ session_start();
   </tr>
   <?php
   $i=0;
-  $SelQry = "select * from tbl_election";
+  $SelQry = "SELECT * FROM tbl_election WHERE election_status=1";
   $result = $Con->query($SelQry);
   while($row=$result->fetch_assoc()) {
       $i++;
       ?>
       <tr>
         <td><?php echo $i ?></td>
-        <td><?php echo $row['election_name'];?></td>
-        <td><?php echo $row['election_description'];?></td>
-        <td><?php echo $row['election_date'];?></td>
-        <td><?php echo $row['election_todate'];?></td>
-        <td><a href="ElectionDetails.php?eid=<?php echo $row['election_id']?>">View Details</a></td>
+        <td><?php echo $row['election_name']; ?></td>
+        <td><?php echo $row['election_description']; ?></td>
+        <td><?php echo $row['election_date']; ?></td>
+        <td><?php echo $row['election_todate']; ?></td>
+        <td>
+          <a href="ElectionDetails.php?eid=<?php echo $row['election_id']; ?>">View Details</a> | 
+          <a href="ViewCandidates.php?eid=<?php echo $row['election_id']; ?>">View Candidates</a>
+        </td>
       </tr>
       <?php
   }

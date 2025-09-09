@@ -9,10 +9,15 @@ $studentId  = $studentRow['student_id'];
 
 $electionId = $_GET['eid'];
 
-if (isset($_POST['btn_apply'])) {
-    // Insert candidate record
-    $insQry = "INSERT INTO tbl_classcandidate (candinate_status, student_id, election_id, candinate_date) 
-               VALUES ('0', '".$studentId."', '".$electionId."', CURDATE())";
+// Check if already applied
+$alreadySel = "SELECT * FROM tbl_classcandidate 
+               WHERE student_id='".$studentId."' AND election_id='".$electionId."'";
+$alreadyRes = $Con->query($alreadySel);
+$alreadyApplied = ($alreadyRes->num_rows > 0);
+
+if (isset($_POST['btn_apply']) && !$alreadyApplied) {
+    $insQry = "INSERT INTO tbl_classcandidate (student_id, election_id, candidate_date) 
+               VALUES ('".$studentId."', '".$electionId."', CURDATE())";
     if ($Con->query($insQry)) {
         ?>
         <script>
@@ -43,7 +48,11 @@ $electionRow = $electionRes->fetch_assoc();
   <table border="1" cellpadding="10" align="center">
     <tr>
       <td colspan="2" align="center">
-        <input type="submit" name="btn_apply" value="Apply as Candidate" />
+        <?php if ($alreadyApplied) { ?>
+          <p style="color:red;">You have already applied for this election.</p>
+        <?php } else { ?>
+          <input type="submit" name="btn_apply" value="Apply as Candidate" />
+        <?php } ?>
       </td>
     </tr>
   </table>

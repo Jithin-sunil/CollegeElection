@@ -4,10 +4,12 @@ session_start();
 
 $studentId = $_GET['sid'];
 
-$SelQry = "SELECT s.*, c.class_name, d.department_name
+$SelQry = "SELECT *
            FROM tbl_student s
            INNER JOIN tbl_class c ON s.class_id = c.class_id
-           INNER JOIN tbl_department d ON c.department_id = d.department_id
+           INNER JOIN tbl_course co ON s.course_id = co.course_id
+           INNER JOIN tbl_department d ON co.department_id = d.department_id
+           INNER JOIN tbl_academicyear ay ON s.academicyear_id = ay.academicyear_id
            WHERE s.student_id='".$studentId."'";
 $result = $Con->query($SelQry);
 $row = $result->fetch_assoc();
@@ -31,7 +33,9 @@ $row = $result->fetch_assoc();
   <tr><td>Contact</td><td><?php echo $row['student_contact']; ?></td></tr>
   <tr><td>Address</td><td><?php echo $row['student_address']; ?></td></tr>
   <tr><td>Department</td><td><?php echo $row['department_name']; ?></td></tr>
+  <tr><td>Course</td><td><?php echo $row['course_name']; ?></td></tr>
   <tr><td>Class</td><td><?php echo $row['class_name']; ?></td></tr>
+  <tr><td>Academic Year</td><td><?php echo $row['academicyear_name']; ?></td></tr>
 </table>
 </body>
 </html>

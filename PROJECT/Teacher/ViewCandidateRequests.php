@@ -4,31 +4,37 @@ session_start();
 
 $teacherId = $_SESSION['tid'];
 
-// Teacher’s Class
-$classSel = "SELECT * FROM tbl_class WHERE teacher_id='".$teacherId."'";
+// Get class of teacher (through teacherassign table)
+$classSel = "SELECT * FROM tbl_assignteacher WHERE teacher_id='".$teacherId."'";
 $classRes = $Con->query($classSel);
 $classRow = $classRes->fetch_assoc();
 $classId  = $classRow['class_id'];
 
-// Accept / Reject handling
-if (isset($_GET['cid']) && isset($_GET['action'])) {
-    $cid = $_GET['cid'];
-    $action = $_GET['action'];
-
-    if ($action == "accept") {
-        $Con->query("UPDATE tbl_classcandidate SET candinate_status=1 WHERE candinate_id='".$cid."'");
-    } elseif ($action == "reject") {
-        $Con->query("UPDATE tbl_classcandidate SET candinate_status=2 WHERE candinate_id='".$cid."'");
-    }
+// Accept
+if (isset($_GET['accept'])) {
+    $cid = $_GET['accept'];
+    $Con->query("UPDATE tbl_classcandidate SET candidate_status=1 WHERE candidate_id='".$cid."'");
     ?>
     <script>
-    alert("Status Updated");
+    alert("Candidate Accepted");
     window.location="ViewCandidateRequests.php";
     </script>
     <?php
 }
 
-// Candidate requests
+// Reject
+if (isset($_GET['reject'])) {
+    $cid = $_GET['reject'];
+    $Con->query("UPDATE tbl_classcandidate SET candidate_status=2 WHERE candidate_id='".$cid."'");
+    ?>
+    <script>
+    alert("Candidate Rejected");
+    window.location="ViewCandidateRequests.php";
+    </script>
+    <?php
+}
+
+// Fetch Requests
 $SelQry = "SELECT c.*, s.student_name, s.student_email, e.election_name, e.election_date, e.election_todate
            FROM tbl_classcandidate c 
            INNER JOIN tbl_student s ON c.student_id = s.student_id
@@ -60,9 +66,9 @@ $result = $Con->query($SelQry);
       $i++;
 
       // Status Text
-      if ($row['candinate_status'] == 0) {
+      if ($row['candidate_status'] == 0) {
           $status = "Pending";
-      } elseif ($row['candinate_status'] == 1) {
+      } elseif ($row['candidate_status'] == 1) {
           $status = "Accepted";
       } else {
           $status = "Rejected";
@@ -73,21 +79,18 @@ $result = $Con->query($SelQry);
         <td><?php echo $row['student_name']; ?></td>
         <td><?php echo $row['student_email']; ?></td>
         <td><?php echo $row['election_name']." (".$row['election_date']." to ".$row['election_todate'].")"; ?></td>
-        <td><?php echo $row['candinate_date']; ?></td>
+        <td><?php echo $row['candidate_date']; ?></td>
         <td><?php echo $status; ?></td>
         <td>
           <a href="StudentDetails.php?sid=<?php echo $row['student_id']; ?>">View Details</a>
-          <?php if ($row['candinate_status']==0) { ?>
-            | <a href="ViewCandidateRequests.php?cid=<?php echo $row['candinate_id']; ?>&action=accept">Accept</a>
-            | <a href="ViewCandidateRequests.php?cid=<?php echo $row['candinate_id']; ?>&action=reject">Reject</a>
-          <?php } 
-          else if ($row['candinate_status']==1) {
-                echo "| Accepted";
-          }
-            else {
-                echo "| Rejected";
-            }
-          ?>
+          <?php if ($row['candidate_status']==0) { ?>
+            | <a href="ViewCandidateRequests.php?accept=<?php echo $row['candidate_id']; ?>">Accept</a>
+            | <a href="ViewCandidateRequests.php?reject=<?php echo $row['candidate_id']; ?>">Reject</a>
+          <?php } elseif ($row['candidate_status']==1) {
+                echo " | Accepted";
+          } else {
+                echo " | Rejected";
+          } ?>
         </td>
       </tr>
       <?php
